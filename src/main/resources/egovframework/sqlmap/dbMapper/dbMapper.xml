@@ -1,0 +1,863 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+ 
+<!-- namespace는 java/egovframework/dbTest/service 경로 -->
+<mapper namespace="egovframework.App.service.dbMapper">
+
+    <!-- 
+    ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ 
+    상영중인 영화 정보에 대한 CRUD 
+    ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ 
+    -->
+    
+    <select id="selectMovieData"  resultType="egovframework.App.model.NowMovieEntity">
+        SELECT
+            MovieID
+            , Actors
+            , Director
+            , ReservationRate
+            , Rating
+            , Title
+            , ImgURL
+            , AgeGrade
+            , Duration
+            , ReleaseDate
+            , Synopsis
+            , Genre1
+            , Genre2
+            , Genre3
+	    FROM
+	        now_movie_info
+		WHERE
+			MovieID = #{MovieID}
+    </select>
+    
+    <select id="selectMovieDataByTitle"  resultType="egovframework.App.model.NowMovieEntity">
+        SELECT
+            MovieID
+            , Actors
+            , Director
+            , ReservationRate
+            , Rating
+            , Title
+            , ImgURL
+            , AgeGrade
+            , Duration
+            , ReleaseDate
+            , Synopsis
+            , Genre1
+            , Genre2
+            , Genre3
+	    FROM
+	        now_movie_info
+		WHERE
+			title LIKE '%${title}%'
+    </select>
+    
+    <!-- Delete 전용 수정 금지 -->
+    <select id="selectMovieIDByTitle"  resultType="egovframework.App.model.NowMovieEntity">
+        SELECT
+            MovieID
+	    FROM
+	        now_movie_info
+		WHERE
+			Title = #{title}
+    </select>
+    
+    <select id="selectAllMovieData"  resultType="egovframework.App.model.NowMovieEntity">
+        SELECT
+            MovieID
+            , Actors
+            , Director
+            , ReservationRate
+            , Rating
+            , Title
+            , ImgURL
+            , AgeGrade
+            , Duration
+            , ReleaseDate
+            , Synopsis
+            , Genre1
+            , Genre2
+            , Genre3
+	    FROM
+	        now_movie_info
+    </select>
+    
+	<select id="selectNowMovieDESCReserveRate"  resultType="egovframework.App.model.NowMovieEntity">
+        SELECT
+            MovieID
+            , Actors
+            , Director
+            , ReservationRate
+            , Rating
+            , Title
+            , ImgURL
+            , AgeGrade
+            , Duration
+            , ReleaseDate
+            , Synopsis
+            , Genre1
+            , Genre2
+            , Genre3
+	    FROM
+	        now_movie_info
+	    ORDER BY
+	        ReservationRate DESC
+	    LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+    
+    <select id="selectNowMovieDESCRating"  resultType="egovframework.App.model.NowMovieEntity">
+        SELECT
+            MovieID
+            , Actors
+            , Director
+            , Rating
+            , Title
+            , ImgURL
+            , AgeGrade
+            , Duration
+            , ReleaseDate
+            , Synopsis
+            , Genre1
+            , Genre2
+            , Genre3
+	    FROM
+	        now_movie_info
+	    ORDER BY
+	        Rating DESC
+    </select>    
+
+    <insert id="insertNowMovie" parameterType="egovframework.App.model.NowMovieEntity">
+        INSERT INTO now_movie_info
+        (
+            Actors
+            , Director
+            , ReservationRate
+            , Rating
+            , Title
+            , ImgURL
+            , AgeGrade
+            , Duration
+            , ReleaseDate
+            , Synopsis
+            , Genre1
+            , Genre2
+            , Genre3
+        )
+        
+        VALUES
+        (
+       		#{Actors}
+            , #{Director}
+            , #{ReservationRate}
+            , #{Rating}
+            , #{Title}
+            , #{ImgURL}
+            , #{AgeGrade}
+            , #{Duration}
+            , #{ReleaseDate}
+            , #{Synopsis}
+            , #{Genre1}
+            , #{Genre2}
+            , #{Genre3}
+        )
+    </insert>
+
+    <delete id="deleteMovieData" parameterType="INT">
+        DELETE
+        FROM
+            now_movie_info
+         WHERE
+            MovieID = #{MovieID}
+<!--     WHERE //영화 번호가 가장 낮은 것
+	       	MovieID = (SELECT MIN(MovieID) FROM movieinfo) -->
+    </delete>
+    
+	<delete id="deleteAllMovieData">
+	    DELETE FROM now_movie_info;
+	</delete>
+	
+	<update id="resetAutoIncrement">
+	    ALTER TABLE now_movie_info AUTO_INCREMENT = 1;
+	</update>
+    
+    <update id="updateMovieData" parameterType="egovframework.App.model.NowMovieEntity">
+        UPDATE now_movie_info
+        SET
+            Actors = #{Actors}
+            , Director = #{Director}
+            , ReservationRate = #{ReservationRate}
+            , Rating = #{Rating}
+            , Title = #{Title}
+            , ImgURL = #{ImgURL}
+            , AgeGrade = #{AgeGrade}
+            , Duration = #{Duration}
+            , ReleaseDate = CAST( #{ReleaseDate} AS DATE )
+            , Synopsis = #{Synopsis}
+            , Genre1 = #{Genre1}
+            , Genre2 = #{Genre2}
+            , Genre3 = #{Genre3}
+        WHERE
+            MovieID = #{MovieID}
+<!--	WHERE
+        	MovieID = ( SELECT Max(MovieID) FROM movieinfo ) -->
+    </update>
+    
+     <!-- 
+    ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ 
+    영화 정보 CRUD 
+    ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ 
+    -->
+
+	<insert id="insertMovie" parameterType="egovframework.App.model.MovieEntity">
+		INSERT INTO movie_info
+		(
+		Actors
+		, Director
+		, Rating
+		, Title
+		, ImgURL
+		, AgeGrade
+		, Duration
+		, ReleaseDate
+		, Synopsis
+        , Genre1
+        , Genre2
+        , Genre3
+		)
+		
+		VALUES
+		(
+		#{Actors}
+		, #{Director}
+		, #{Rating}
+		, #{Title}
+		, #{ImgURL}
+		, #{AgeGrade}
+		, #{Duration}
+		, #{ReleaseDate}
+		, #{Synopsis}
+		, #{Genre1}
+		, #{Genre2}
+		, #{Genre3}
+		)
+	</insert>
+
+	<select id="selectMovie" resultType="egovframework.App.model.MovieEntity">
+    	SELECT
+        	MovieID
+        	, Actors
+        	, Director
+        	, Rating
+        	, Title
+        	, ImgURL
+        	, AgeGrade
+        	, Duration
+        	, ReleaseDate
+        	, Synopsis
+        	, Genre1
+        	, Genre2
+        	, Genre3
+    	FROM
+        	movie_info
+    	WHERE
+        	REPLACE(title, ' ', '') LIKE CONCAT('%', REPLACE(#{title}, ' ', ''), '%');
+	</select>
+	
+	<select id="selectMovieTitle" resultType="egovframework.App.model.MovieEntity">
+    	SELECT
+        	MovieID
+        	, Actors
+        	, Director
+        	, Rating
+        	, Title
+        	, ImgURL
+        	, AgeGrade
+        	, Duration
+        	, ReleaseDate
+        	, Synopsis
+        	, Genre1
+        	, Genre2
+        	, Genre3
+    	FROM
+        	movie_info
+    	WHERE
+        	Title = #{title}
+	</select>
+	
+	<select id="selectMovieByTitle"  resultType="egovframework.App.model.MovieEntity">
+        SELECT
+            MovieID
+	    FROM
+	        movie_info
+		WHERE
+			Title = #{title}
+    </select>
+	
+	<!-- Delete 전용 수정 금지 -->
+	<select id="selectMovieByID" resultType="String">
+		SELECT
+			Title
+		FROM
+			movie_info
+		WHERE
+			MovieID =  #{MovieID}
+	</select>
+
+
+    <select id="selectMovieDESCRating" resultType="egovframework.App.model.MovieEntity">
+	    SELECT
+	        MovieID
+	        , Actors
+	        , Director
+	        , Rating
+	        , Title
+	        , ImgURL
+	        , AgeGrade
+	        , Duration
+	        , ReleaseDate
+	        , Synopsis
+	        , Genre1
+	        , Genre2
+	        , Genre3
+	    FROM
+	        movie_info
+	    ORDER BY
+	        Rating DESC
+	    LIMIT #{pageSize} OFFSET #{offset}
+	</select>
+    
+
+    <select id="selectAllMovie"  resultType="egovframework.App.model.MovieEntity">
+        SELECT
+            MovieID
+            , Actors
+            , Director
+            , Rating
+            , Title
+            , ImgURL
+            , AgeGrade
+            , Duration
+            , ReleaseDate
+            , Synopsis
+            , Genre1
+            , Genre2
+            , Genre3
+	    FROM
+	        movie_info
+	    ORDER BY
+	        Rating DESC
+    </select>
+    
+    <select id="selectMovieByActor"  resultType="egovframework.App.model.MovieEntity">
+        SELECT
+            MovieID
+            , Actors
+            , Director
+            , Rating
+            , Title
+            , ImgURL
+            , AgeGrade
+            , Duration
+            , ReleaseDate
+            , Synopsis
+            , Genre1
+            , Genre2
+            , Genre3
+	    FROM
+	        movie_info
+		WHERE
+			Actors LIKE '%${Actors}%'
+	    ORDER BY
+	        Rating DESC
+	    LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+
+	<select id="selectMovieByGenre" resultType="egovframework.App.model.MovieEntity">
+		SELECT
+			MovieID,
+			Actors,
+			Director,
+			Rating,
+			Title,
+			ImgURL,
+			AgeGrade,
+			Duration,
+			ReleaseDate,
+			Synopsis,
+			Genre1,
+			Genre2,
+			Genre3
+		FROM
+			movie_info
+		WHERE
+			(Genre1 = #{Genre1} OR Genre2 = #{Genre1} OR Genre3 = #{Genre1})
+		OR
+			(Genre1 = #{Genre2} OR Genre2 = #{Genre2} OR Genre3 = #{Genre2})
+		ORDER BY
+			Rating DESC
+		LIMIT #{pageSize} OFFSET #{offset}
+	</select>
+    
+    
+    <delete id="deleteMovie" parameterType="INT">
+        DELETE
+        FROM
+            movie_info
+         WHERE
+            MovieID = #{MovieID}
+    </delete>
+
+    <update id="updateMovie" parameterType="egovframework.App.model.MovieEntity">
+        UPDATE movie_info
+        SET
+            Actors = #{Actors}
+            , Director = #{Director}
+            , Rating = #{Rating}
+            , Title = #{Title}
+            , ImgURL = #{ImgURL}
+            , AgeGrade = #{AgeGrade}
+            , Duration = #{Duration}
+            , ReleaseDate = CAST( #{ReleaseDate} AS DATE )
+            , Synopsis = #{Synopsis}
+            , Genre1 = #{Genre1}
+            , Genre2 = #{Genre2}
+            , Genre3 = #{Genre3}
+        WHERE
+            MovieID = #{MovieID}
+    </update>  
+
+	<!-- 중복검사를 위한 타이틀 카운트 -->
+	<select id="countMovieByTitle" resultType="int" parameterType="java.lang.String">
+    	SELECT COUNT(*) 
+    	FROM 
+    		movie_info 
+    	WHERE 
+    		title = #{title}
+	</select>
+
+    <!-- 
+    ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ 
+    사용자 정보에 대한 CRUD 
+    ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ 
+    -->
+    
+    
+    
+    <select id="selectUserData"  resultType="egovframework.App.model.UserEntity">
+        SELECT
+            UserID
+            , Password
+            , Email
+            , UserName
+            , Gender
+            , Age
+            , Actors
+            , Genre1
+            , Genre2
+            , EmailVerified
+            , JoinTime
+	    FROM
+	        user_info
+		WHERE
+			UserID = #{UserID}
+    </select>
+    
+    <select id="selectUserByEmail"  resultType="egovframework.App.model.UserEntity">
+        SELECT
+            UserID
+            , Password
+            , Email
+            , UserName
+            , Gender
+            , Age
+            , Actors
+            , Genre1
+            , Genre2
+            , EmailVerified
+            , JoinTime
+	    FROM
+	        user_info
+		WHERE
+			Email= #{Email}
+    </select>
+    
+    <select id="selectAllUserData"  resultType="egovframework.App.model.UserEntity">
+        SELECT
+            UserID
+            , Password
+            , Email
+            , UserName
+            , Gender
+            , Age
+            , Actors
+            , Genre1
+            , Genre2
+            , EmailVerified
+            , JoinTime
+	    FROM
+	        user_info
+	    ORDER BY
+	        UserID DESC
+    </select>        
+
+
+
+    <insert id="insertUserData" parameterType="egovframework.App.model.UserEntity">
+        INSERT INTO user_info
+        (
+			Password
+            , Email
+            , UserName
+            , Gender
+            , Age
+            , Actors
+            , Genre1
+            , Genre2
+            , JoinTime
+        )
+
+        VALUES
+        (
+            #{Password}
+            , #{Email}
+            , #{UserName}
+            , #{Gender}
+            , #{Age}
+            , #{Actors}
+            , #{Genre1}
+            , #{Genre2}
+            , #{JoinTime}
+        )
+    </insert>
+
+
+
+    <delete id="deleteUserData" parameterType="INT">
+        DELETE
+        FROM
+            user_info
+         WHERE
+            UserID = #{UserID}
+    </delete>
+    
+    <delete id="deleteUnverifiedUser" >
+        DELETE
+        FROM
+            user_info
+         WHERE
+            JoinTime &lt; DATE_SUB(NOW(), INTERVAL 1 HOUR) AND EmailVerified = false
+    </delete>
+
+
+    
+    <update id="updateUserData" parameterType="egovframework.App.model.UserEntity">
+        UPDATE user_info
+        SET
+            Password = #{Password}
+            , Email = #{Email}
+            , UserName = #{UserName}
+            , Gender = #{Gender}
+            , Age = #{Age}
+            , Actors = #{Actors}
+            , Genre1 = #{Genre1}
+            , Genre2 = #{Genre2}
+            , EmailVerified = #{EmailVerified}
+        WHERE
+            UserID = #{UserID}
+    </update>
+    
+    
+    
+    <!-- 
+    ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ 
+    코멘트에 대한 CRUD 
+    ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ 
+    -->
+    
+    
+    <insert id="insertComment" parameterType="egovframework.App.model.CommentEntity">
+    	INSERT INTO comment 
+    	(
+	    	UserID
+	    	, MovieID
+	    	, Content
+	    	, Rating
+	    )
+    	VALUES 
+    	(
+    		#{UserID}
+    		, #{MovieID}
+    		, #{Content}
+    		, #{Rating}
+    	)
+    </insert>
+    
+    <delete id="deleteComment" parameterType="int">
+    	DELETE
+    	FROM
+    		comment
+    	WHERE
+    		CommentID = #{CommentID}
+    
+    </delete>
+    
+    <update id="updateComment" parameterType="HashMap">
+        UPDATE comment
+        SET
+            Content = #{Content}
+            , Rating = #{Rating}
+        WHERE
+            CommentID = #{CommentID}
+    </update>
+    
+    <!-- 특정 영화 정보에서 보는 코멘트 모음(M) -->
+    <select id="selectAllMComment"  resultType="egovframework.App.model.CommentEntity">
+		SELECT 
+			user_info.UserName
+			, movie_info.Title
+			, comment.UserID
+			, comment.MovieID
+			, comment.CommentID
+			, comment.Content
+			, comment.Rating
+			, comment.TimeStamp
+		FROM 
+			comment
+		JOIN 
+			user_info ON comment.UserID = user_info.UserID
+		JOIN
+			movie_info ON comment.MovieID = movie_info.MovieID
+		WHERE
+			comment.MovieID = #{MovieID}
+	    ORDER BY
+	        TimeStamp DESC
+    </select>
+    
+    <!-- 사용자 마이룸에서 보는 자신의 코멘트 모음(U) -->
+    <select id="selectAllUComment"  resultType="egovframework.App.model.CommentEntity">
+		SELECT 
+			movie_info.Title
+			, comment.MovieID
+			, comment.UserID
+			, comment.CommentID
+			, comment.Content
+			, comment.Rating
+			, comment.TimeStamp
+		FROM 
+			comment
+		JOIN 
+			movie_info ON comment.MovieID = movie_info.MovieID
+		WHERE
+			UserID = #{UserID}
+	    ORDER BY
+	        TimeStamp DESC
+    </select>      
+    
+    <!-- 
+    ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ 
+    watch_history에 대한 CRUD 
+    ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ 
+    -->
+    
+	<insert id="insertOrUpdateW_History" parameterType="egovframework.App.model.WatchHistoryEntity">
+	    <!-- Key      결과타입INT     순서:(실제쿼리)전에   Key가 저장될 변수: exists -->
+	    <selectKey resultType="int" order="BEFORE" keyProperty="exists">
+	        SELECT 
+	            COUNT(*) 
+	        FROM 
+	            watch_history 
+	        WHERE 
+	            UserID = #{UserID} AND MovieID = #{MovieID}
+	    </selectKey>
+	    <if test="exists > 0">  <!-- 시청기록이 존재하면 -->
+	        UPDATE 
+	            watch_history 
+	        SET
+	            WatchedDate = NOW()
+	        WHERE 
+	            UserID = #{UserID} AND MovieID = #{MovieID}
+	    </if>
+	    <if test="exists == 0">  <!-- 시청기록이 존재안하면 -->
+	        INSERT INTO watch_history 
+	        (
+	            MovieID
+	            , UserID
+	            , WatchedDate
+	        )
+	        
+	        VALUES 
+	        (
+	            #{MovieID}
+	            , #{UserID}
+	            , NOW()
+	        )
+	    </if>
+	</insert>
+
+
+
+	<delete id="deleteW_History" parameterType="int">
+    	DELETE
+    	FROM
+    		watch_history
+    	WHERE
+    		WatchHistoryID = #{WatchHistoryID}
+    </delete>
+    
+        <!-- 특정 영화ID로 모음(M) -->
+    <select id="selectAllMW_History"  resultType="egovframework.App.model.WatchHistoryEntity">
+		SELECT 
+			watch_history.WatchHistoryID
+			, watch_history.WatchedDate
+			, watch_history.UserID
+			, watch_history.MovieID
+			, user_info.UserName
+			, movie_info.Title
+		FROM 
+			watch_history
+		JOIN 
+			user_info ON watch_history.UserID = user_info.UserID
+		JOIN
+			movie_info ON watch_history.MovieID = movie_info.MovieID
+		WHERE
+			watch_history.MovieID = #{MovieID}
+	    ORDER BY
+	        watch_history.WatchedDate DESC
+    </select>
+    
+    <!-- 특정 사용자ID로 모음(U) -->
+    <select id="selectAllUW_History"  resultType="egovframework.App.model.WatchHistoryEntity">
+		SELECT 
+			watch_history.WatchHistoryID
+			, watch_history.WatchedDate
+			, watch_history.UserID
+			, watch_history.MovieID
+			, user_info.UserName
+			, movie_info.Title
+			, movie_info.ImgURL
+		FROM 
+			watch_history
+		JOIN 
+			user_info ON watch_history.UserID = user_info.UserID
+		JOIN
+			movie_info ON watch_history.MovieID = movie_info.MovieID
+		WHERE
+			watch_history.UserID = #{UserID}
+	    ORDER BY
+	        watch_history.WatchedDate DESC
+    </select>
+    
+    
+    
+    <!-- 
+    ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ 
+    wish_list(찜)에 대한 CRUD 
+    ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ 
+    -->
+    
+    <insert id="insertWishList" parameterType="egovframework.App.model.WishListEntity">
+    	INSERT INTO wish_list
+        (
+            MovieID
+            , UserID
+            , WishDate
+        )
+        
+        VALUES 
+        (
+            #{MovieID}
+            , #{UserID}
+            , NOW()
+        )
+    </insert>
+    
+   	<delete id="deleteWishList" parameterType="int">
+    	DELETE
+    	FROM
+    		wish_list
+    	WHERE
+    		UserID = #{userID} AND MovieID = #{movieID}
+    </delete>
+    
+    <!-- 특정 사용자ID로 모음 -->
+    <select id="selectAllUWishList"  resultType="egovframework.App.model.WishListEntity">
+		SELECT 
+			wish_list.WishID
+			, wish_list.UserID
+			, wish_list.MovieID
+			, wish_list.WishDate
+			, user_info.UserName
+			, movie_info.Title
+			, movie_info.ImgURL
+		FROM 
+			wish_list
+		JOIN 
+			user_info ON wish_list.UserID = user_info.UserID
+		JOIN
+			movie_info ON wish_list.MovieID = movie_info.MovieID
+		WHERE
+			wish_list.UserID = #{UserID}
+	    ORDER BY
+	        wish_list.WishDate DESC
+    </select>
+    
+    <select id="isWishExists" resultType="int">
+        SELECT COUNT(*) AS count
+        FROM wish_list
+        WHERE UserID = #{userID} AND MovieID = #{movieID}
+    </select>
+    
+    
+    <!-- 
+    ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ 
+    Token에 대한 CRUD 
+    ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ 
+    -->
+    
+    
+    <insert id="saveRefreshToken" >
+        INSERT INTO token
+        (
+            UserID
+            , TokenValue
+            , ExpirationDateTime
+        )
+        
+        VALUES
+        (
+       		#{UserID}
+            , #{TokenValue}
+            , #{ExpirationDateTime}
+
+        )
+        
+        ON DUPLICATE KEY UPDATE
+        	TokenValue = #{TokenValue},
+        	ExpirationDateTime = #{ExpirationDateTime}
+    </insert>
+    
+    
+    <delete id="deleteRefreshToken" parameterType="Int">
+        DELETE
+        FROM
+            token
+        WHERE
+            UserID = #{UserID}
+    </delete>
+    
+    <select id="getRefreshToken" resultType="String">
+		SELECT 
+			TokenValue
+		FROM 
+			token
+		WHERE
+			UserID = #{UserID}
+    </select>
+    
+</mapper>
